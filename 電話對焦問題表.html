@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>電話對焦問題表｜瘋戶外</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --accent: #c8502a;
+    --accent-light: #f5ebe6;
+    --rule: #d4cfc9;
+    --bg: #f9f6f2;
+    --white: #ffffff;
+    --muted: #7a746e;
+    --tag-bg: #ede8e3;
+    --check: #4a7c59;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--ink);
+    color: var(--white);
+    padding: 32px 40px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    right: -40px; top: -40px;
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    border: 40px solid var(--accent);
+    opacity: .18;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    right: 60px; bottom: -60px;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    border: 28px solid var(--accent);
+    opacity: .1;
+  }
+  .header-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  header h1 {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.4;
+    position: relative;
+    z-index: 1;
+  }
+  header p {
+    margin-top: 6px;
+    font-size: 12px;
+    color: #aaa;
+    font-weight: 300;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── META BAR ── */
+  .meta-bar {
+    background: var(--white);
+    border-bottom: 1px solid var(--rule);
+    padding: 14px 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .meta-field label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .meta-field input {
+    width: 100%;
+    border: none;
+    border-bottom: 1.5px solid var(--rule);
+    background: transparent;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 13px;
+    color: var(--ink);
+    padding: 3px 0;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .meta-field input:focus { border-color: var(--accent); }
+  .meta-field input::placeholder { color: #ccc; }
+
+  /* ── SECTIONS ── */
+  .sections { padding: 20px 20px 40px; display: flex; flex-direction: column; gap: 16px; }
+
+  .section {
+    background: var(--white);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 16px;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid transparent;
+    transition: background .15s;
+  }
+  .section-header:hover { background: var(--accent-light); }
+  .section.open .section-header {
+    border-bottom-color: var(--rule);
+    background: var(--accent-light);
+  }
+
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 4px;
+    padding: 2px 6px;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 14px;
+    font-weight: 600;
+    flex: 1;
+  }
+  .section-subtitle {
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .chevron {
+    width: 16px; height: 16px;
+    border-right: 2px solid var(--muted);
+    border-bottom: 2px solid var(--muted);
+    transform: rotate(45deg);
+    transition: transform .25s;
+    flex-shrink: 0;
+    margin-right: 2px;
+    margin-top: -3px;
+  }
+  .section.open .chevron { transform: rotate(-135deg); margin-top: 3px; }
+
+  .section-body { display: none; padding: 14px 16px; }
+  .section.open .section-body { display: block; }
+
+  /* ── QUESTIONS ── */
+  .question-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--rule);
+  }
+  .question-item:last-child { border-bottom: none; }
+
+  .q-check {
+    width: 18px; height: 18px;
+    border: 2px solid var(--rule);
+    border-radius: 4px;
+    flex-shrink: 0;
+    cursor: pointer;
+    margin-top: 2px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s;
+    background: var(--white);
+  }
+  .q-check.checked {
+    background: var(--check);
+    border-color: var(--check);
+  }
+  .q-check.checked::after {
+    content: '';
+    width: 5px; height: 9px;
+    border-right: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    transform: rotate(45deg) translate(-1px,-1px);
+    display: block;
+  }
+
+  .q-content { flex: 1; }
+  .q-text {
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--ink);
+    transition: color .2s;
+  }
+  .q-text.done { color: #bbb; text-decoration: line-through; }
+
+  .q-note {
+    margin-top: 6px;
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid var(--rule);
+    background: transparent;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 11px;
+    color: var(--muted);
+    padding: 3px 0;
+    outline: none;
+    resize: none;
+    height: auto;
+    transition: border-color .2s;
+  }
+  .q-note:focus { border-color: var(--accent); }
+  .q-note::placeholder { color: #d4cfc9; }
+
+  /* ── TIPS BOX ── */
+  .tips-box {
+    background: var(--ink);
+    color: var(--white);
+    border-radius: 10px;
+    padding: 18px;
+    margin: 0 20px 20px;
+  }
+  .tips-box h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .tip-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 9px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #ccc;
+  }
+  .tip-item:last-child { margin-bottom: 0; }
+  .tip-dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 6px;
+  }
+
+  /* ── SUMMARY BAR ── */
+  .summary-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--white);
+    border-top: 1px solid var(--rule);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 100;
+    box-shadow: 0 -4px 16px rgba(0,0,0,.06);
+  }
+  .progress-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+  .progress-track {
+    flex: 1;
+    height: 4px;
+    background: var(--rule);
+    border-radius: 2px;
+    margin: 0 14px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width .3s ease;
+    width: 0%;
+  }
+  .progress-pct {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 500;
+    min-width: 32px;
+    text-align: right;
+  }
+
+  /* bottom padding for fixed bar */
+  .bottom-pad { height: 60px; }
+
+  /* print */
+  @media print {
+    .summary-bar { display: none; }
+    .bottom-pad { display: none; }
+    .section-body { display: block !important; }
+    .chevron { display: none; }
+    body { background: white; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-label">Fun Outdoor ／ 瘋戶外</div>
+  <h1>客戶電話對焦問題表</h1>
+  <p>通話前填寫基本資訊，通話中逐題勾選並記錄回應</p>
+</header>
+
+<!-- META -->
+<div class="meta-bar">
+  <div class="meta-field">
+    <label>客戶 / 公司</label>
+    <input type="text" placeholder="例：寒舍集團 Eric">
+  </div>
+  <div class="meta-field">
+    <label>對焦日期</label>
+    <input type="date">
+  </div>
+  <div class="meta-field">
+    <label>活動名稱 / 案號</label>
+    <input type="text" placeholder="例：8月份 TB">
+  </div>
+  <div class="meta-field">
+    <label>負責規劃師</label>
+    <input type="text" placeholder="例：Irene">
+  </div>
+</div>
+
+<!-- SECTIONS -->
+<div class="sections" id="sections"></div>
+
+<!-- TIPS -->
+<div class="tips-box">
+  <h3>🎯 嚴肅型客戶通話小技巧</h3>
+  <div class="tip-item"><div class="tip-dot"></div><span>問完一個等他說完再問，不要連問兩題</span></div>
+  <div class="tip-item"><div class="tip-dot"></div><span>回應模糊時用「所以您的意思是⋯⋯？」幫他收斂</span></div>
+  <div class="tip-item"><div class="tip-dot"></div><span>適時說「這個細節很重要，我記一下」讓他感覺被認真傾聽</span></div>
+  <div class="tip-item"><div class="tip-dot"></div><span>結尾必問：「還有什麼是您覺得我應該知道、但我沒問到的？」</span></div>
+</div>
+
+<div class="bottom-pad"></div>
+
+<!-- PROGRESS BAR -->
+<div class="summary-bar">
+  <span class="progress-label">問題進度</span>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <span class="progress-pct" id="progressPct">0%</span>
+</div>
+
+<script>
+const data = [
+  {
+    title: "活動核心目的",
+    subtitle: "釐清真正想解決的問題",
+    questions: [
+      { text: "這次活動主要希望達成的效果，是偏向關係修復、還是重新建立默契？" },
+      { text: "團隊目前的互動狀況，是大家各自為政，還是特定部門或人之間有隔閡？" },
+      { text: "您覺得目前最需要被改善的是信任感、還是溝通方式？" },
+      { text: "這次活動是誰提出來的？背後有沒有特定的事件或契機？" },
+    ]
+  },
+  {
+    title: "活動期待與禁忌",
+    subtitle: "避免踩雷，讓對方說出希望的樣子",
+    questions: [
+      { text: "高層或董事長會全程參與嗎？他對活動形式有什麼特別偏好或明確不想要的元素？" },
+      { text: "上次參加過印象最深、或最不想再重複的活動類型是什麼？" },
+      { text: "室內 vs. 戶外，如果只能選一個，您個人偏向哪邊？原因是？" },
+      { text: "競賽型 vs. 共創型，您覺得哪個方向比較符合這次需求？" },
+      { text: "有沒有特別想避免的活動主題或情境（如過於肢體接觸、太幼稚的遊戲等）？" },
+    ]
+  },
+  {
+    title: "成功的定義",
+    subtitle: "讓客戶說出 KPI，設計有依據的課程",
+    questions: [
+      { text: "活動結束後，您希望參與者會有什麼具體的感受或改變？" },
+      { text: "如果三個月後回頭看，什麼樣的結果會讓您覺得「這次真的值得」？" },
+      { text: "有沒有哪個面向，是您不希望活動結束後還是老樣子的？" },
+      { text: "活動成效您會怎麼向上級或董事長回報？" },
+    ]
+  },
+  {
+    title: "人員結構與動態",
+    subtitle: "設計分組、節奏的依據",
+    questions: [
+      { text: "參與人數確認？其中高階主管 vs. 一般同仁各約幾位？" },
+      { text: "新進成員大約占多少比例？他們是同時到職還是陸續加入？" },
+      { text: "這群人平時工作上交集多嗎？還是比較分散在不同業務線？" },
+      { text: "有沒有需要特別注意的角色——例如資歷很深、較強勢、或在場上容易主導的人？" },
+      { text: "年齡層分布大概是？有沒有體能上需要留意的限制？" },
+    ]
+  },
+  {
+    title: "實務條件確認",
+    subtitle: "提案前必確認的硬條件",
+    questions: [
+      { text: "活動天數與節奏：幾天幾夜？每天都需要有安排，還是保留自由時間？" },
+      { text: "預計出發地點？交通距離有限制嗎？" },
+      { text: "對食宿有特別要求嗎（星級、風格、房型分配等）？" },
+      { text: "預算區間大概在哪個範圍？（方便提案對焦）" },
+      { text: "提案截止時間？決策流程是您直接確認，還是需要再向上呈報？" },
+    ]
+  },
+  {
+    title: "補充挖掘",
+    subtitle: "開放式收尾，挖出沒說出口的需求",
+    questions: [
+      { text: "以前辦過類似活動嗎？那次最滿意 / 最不滿意的地方是什麼？" },
+      { text: "這次您最擔心的風險或NG情境是什麼？" },
+      { text: "還有什麼是您覺得我應該知道、但我還沒問到的？" },
+    ]
+  }
+];
+
+let totalQ = 0;
+let checkedCount = 0;
+
+function buildSections() {
+  const container = document.getElementById('sections');
+  data.forEach((sec, si) => {
+    totalQ += sec.questions.length;
+    const div = document.createElement('div');
+    div.className = 'section' + (si === 0 ? ' open' : '');
+    div.innerHTML = `
+      <div class="section-header" onclick="toggleSection(this)">
+        <span class="section-num">0${si+1}</span>
+        <div>
+          <div class="section-title">${sec.title}</div>
+          <div class="section-subtitle">${sec.subtitle}</div>
+        </div>
+        <div class="chevron"></div>
+      </div>
+      <div class="section-body">
+        ${sec.questions.map((q, qi) => `
+          <div class="question-item">
+            <div class="q-check" data-id="${si}-${qi}" onclick="toggleCheck(this)"></div>
+            <div class="q-content">
+              <div class="q-text" id="qt-${si}-${qi}">${q.text}</div>
+              <textarea class="q-note" rows="1" placeholder="記錄回應⋯⋯" oninput="autoResize(this)"></textarea>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    container.appendChild(div);
+  });
+  updateProgress();
+}
+
+function toggleSection(header) {
+  header.parentElement.classList.toggle('open');
+}
+
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  const [si, qi] = el.dataset.id.split('-');
+  const textEl = document.getElementById(`qt-${si}-${qi}`);
+  textEl.classList.toggle('done', el.classList.contains('checked'));
+  checkedCount = document.querySelectorAll('.q-check.checked').length;
+  updateProgress();
+}
+
+function updateProgress() {
+  const pct = Math.round((checkedCount / totalQ) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+
+function autoResize(ta) {
+  ta.style.height = 'auto';
+  ta.style.height = ta.scrollHeight + 'px';
+}
+
+buildSections();
+</script>
+</body>
+</html>

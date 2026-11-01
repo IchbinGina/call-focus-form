@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>電話對焦問題表｜瘋戶外</title>
+<title>電話對焦需求卡｜瘋戶外</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -19,6 +19,7 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { color-scheme: light; }
 
   body {
     font-family: 'Noto Sans TC', sans-serif;
@@ -312,6 +313,31 @@
   /* bottom padding for fixed bar */
   .bottom-pad { height: 60px; }
 
+
+  /* ── 需求卡 ── */
+  .card { background: var(--white); border-radius: 10px; margin: 20px 20px 0; box-shadow: 0 1px 4px rgba(0,0,0,.06); border-top: 4px solid var(--accent); }
+  .card-head { padding: 14px 16px 6px; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; }
+  .card-head h2 { font-family:'Noto Serif TC',serif; font-size:15px; }
+  .card-head span { font-size:11px; color:var(--muted); }
+  .card-grid { padding: 6px 16px 16px; display:grid; grid-template-columns: 1fr 1fr; gap: 12px 14px; }
+  .f { display:flex; flex-direction:column; gap:4px; min-width:0; }
+  .f.wide { grid-column: 1 / -1; }
+  .f label { font-size:11px; color:var(--muted); }
+  .f label b { color: var(--accent); font-weight:500; }
+  .f input, .f select, .f textarea { font-family:'Noto Sans TC',sans-serif; font-size:13px; color:var(--ink); background:#fff; border:1px solid var(--rule); border-radius:6px; padding:7px 9px; outline:none; width:100%; }
+  .f textarea { resize: vertical; min-height: 54px; }
+  .f input:focus, .f select:focus, .f textarea:focus { border-color: var(--accent); }
+  .f.missing input, .f.missing select, .f.missing textarea { border-color:#d23c3c; background:#fdf1f1; }
+  .f .hint { font-size:10px; color:#aaa; }
+  .opt-label { margin: 22px 20px 0; font-size: 12px; color: var(--muted); }
+  .btn { font-family:'Noto Sans TC',sans-serif; font-size:12px; border:none; border-radius:6px; padding:8px 12px; cursor:pointer; white-space:nowrap; }
+  .btn.primary { background: var(--accent); color:#fff; }
+  .btn.ghost { background: var(--tag-bg); color: var(--ink); margin-right:8px; }
+  .req-count { font-family:'DM Mono',monospace; font-size:11px; color: var(--muted); margin-right: 10px; white-space:nowrap; }
+  .toast { position:fixed; left:50%; bottom:76px; transform:translateX(-50%); background:var(--ink); color:#fff; font-size:12px; padding:8px 14px; border-radius:6px; opacity:0; transition:opacity .2s; pointer-events:none; z-index:200; max-width:90vw; }
+  .toast.show { opacity:1; }
+  @media (max-width: 520px) { .card-grid { grid-template-columns: 1fr; } header { padding: 26px 20px 22px; } .progress-label, .progress-track, .progress-pct { display:none; } .summary-bar { justify-content:flex-end; } .progress-track { margin: 0 8px; } }
+
   /* print */
   @media print {
     .summary-bar { display: none; }
@@ -326,29 +352,35 @@
 
 <header>
   <div class="header-label">Fun Outdoor ／ 瘋戶外</div>
-  <h1>客戶電話對焦問題表</h1>
-  <p>通話前填寫基本資訊，通話中逐題勾選並記錄回應</p>
+  <h1>電話對焦需求卡</h1>
+  <p>需求卡為必填（提案依據）；下方對焦問題選填，問到再記</p>
 </header>
 
-<!-- META -->
-<div class="meta-bar">
-  <div class="meta-field">
-    <label>客戶 / 公司</label>
-    <input type="text" placeholder="例：寒舍集團 Eric">
-  </div>
-  <div class="meta-field">
-    <label>對焦日期</label>
-    <input type="date">
-  </div>
-  <div class="meta-field">
-    <label>活動名稱 / 案號</label>
-    <input type="text" placeholder="例：8月份 TB">
-  </div>
-  <div class="meta-field">
-    <label>負責規劃師</label>
-    <input type="text" placeholder="例：Irene">
+<!-- 需求卡（必填） -->
+<div class="card" id="reqCard">
+  <div class="card-head"><h2>需求卡</h2><span><b style="color:var(--accent)">*</b> 必填，匯出前會檢查</span></div>
+  <div class="card-grid">
+    <div class="f"><label>公司名稱 <b>*</b></label><input data-k="公司名稱" data-req placeholder="例：台灣諾奧思"></div>
+    <div class="f"><label>窗口姓名／職稱 <b>*</b></label><input data-k="窗口" data-req placeholder="例：Ann／HR"></div>
+    <div class="f"><label>聯絡方式 <b>*</b></label><input data-k="聯絡方式" data-req placeholder="電話或 Email"></div>
+    <div class="f"><label>對焦日期 <b>*</b></label><input type="date" data-k="對焦日期" data-req id="callDate"></div>
+    <div class="f"><label>活動日期 <b>*</b></label><input data-k="活動日期" data-req placeholder="例：12/8（二），或 12 月中"></div>
+    <div class="f"><label>時段 <b>*</b></label>
+      <select data-k="時段" data-req><option value="">請選擇</option><option>半天（3hr）</option><option>全天（6hr）</option><option>2 小時</option><option>兩天一夜</option><option>其他（備註說明）</option></select></div>
+    <div class="f"><label>人數 <b>*</b></label><input data-k="人數" data-req inputmode="numeric" placeholder="例：35 或 30–35"></div>
+    <div class="f"><label>地點區域 <b>*</b></label><input data-k="地點區域" data-req placeholder="例：台北內湖、新竹"></div>
+    <div class="f"><label>場地 <b>*</b></label>
+      <select data-k="場地" data-req><option value="">請選擇</option><option>客戶已有場地</option><option>需瘋戶外代找</option><option>未定</option></select></div>
+    <div class="f"><label>預算（未稅） <b>*</b></label><input data-k="預算" data-req placeholder="例：150,000；沒說就填「未提供」"><span class="hint">預設未稅；客戶講含稅請寫明「含稅」</span></div>
+    <div class="f wide"><label>活動偏好／方向 <b>*</b></label><input data-k="活動偏好" data-req placeholder="例：室內、偏共創、不要太激烈；或指定活動"></div>
+    <div class="f wide"><label>核心目的與痛點 <b>*</b></label><textarea data-k="核心目的與痛點" data-req placeholder="例：跨部門互動少、新任主管多，想建立信任與溝通"></textarea></div>
+    <div class="f"><label>案號</label><input data-k="案號" placeholder="例：CRM-123（選填）"></div>
+    <div class="f"><label>負責規劃師</label><input data-k="規劃師" value="祈雅Gina"></div>
+    <div class="f wide"><label>其他備註</label><textarea data-k="備註" placeholder="提案期限、決策流程、其他特別要求（選填）"></textarea></div>
   </div>
 </div>
+
+<div class="opt-label">以下對焦問題為選填，問到就勾選並記錄回應</div>
 
 <!-- SECTIONS -->
 <div class="sections" id="sections"></div>
@@ -366,10 +398,16 @@
 
 <!-- PROGRESS BAR -->
 <div class="summary-bar">
-  <span class="progress-label">問題進度</span>
+  <span class="progress-label">選填進度</span>
   <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
   <span class="progress-pct" id="progressPct">0%</span>
+  <span style="width:14px"></span>
+  <span class="req-count" id="reqCount"></span>
+  <button class="btn ghost" onclick="copyCard()">複製需求卡</button>
+  <button class="btn primary" onclick="exportXlsx()">匯出 Excel</button>
 </div>
+<div class="toast" id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <script>
 const data = [
@@ -461,7 +499,7 @@ function buildSections() {
             <div class="q-check" data-id="${si}-${qi}" onclick="toggleCheck(this)"></div>
             <div class="q-content">
               <div class="q-text" id="qt-${si}-${qi}">${q.text}</div>
-              <textarea class="q-note" rows="1" placeholder="記錄回應⋯⋯" oninput="autoResize(this)"></textarea>
+              <textarea class="q-note" id="qn-${si}-${qi}" rows="1" placeholder="記錄回應⋯⋯" oninput="autoResize(this)"></textarea>
             </div>
           </div>
         `).join('')}
@@ -497,6 +535,66 @@ function autoResize(ta) {
 }
 
 buildSections();
+
+// ── 需求卡 ──
+const reqEls = () => [...document.querySelectorAll('#reqCard [data-k]')];
+function cardData(){ const o={}; reqEls().forEach(el=>o[el.dataset.k]=el.value.trim()); return o; }
+function updateReq(){
+  const req=reqEls().filter(el=>el.hasAttribute('data-req'));
+  const done=req.filter(el=>el.value.trim()).length;
+  document.getElementById('reqCount').textContent=`必填 ${done}/${req.length}`;
+  req.forEach(el=>{ if(el.value.trim()) el.parentElement.classList.remove('missing'); });
+}
+function checkReq(){
+  const miss=reqEls().filter(el=>el.hasAttribute('data-req') && !el.value.trim());
+  miss.forEach(el=>el.parentElement.classList.add('missing'));
+  if(miss.length){ miss[0].focus(); miss[0].scrollIntoView({behavior:'smooth',block:'center'});
+    toast('還有 '+miss.length+' 個必填未填：'+miss.map(el=>el.dataset.k).join('、')); return false; }
+  return true;
+}
+function answers(){
+  const rows=[];
+  data.forEach((sec,si)=>sec.questions.forEach((q,qi)=>{
+    const chk=document.querySelector(`.q-check[data-id="${si}-${qi}"]`).classList.contains('checked');
+    const note=document.getElementById(`qn-${si}-${qi}`).value.trim();
+    rows.push({類別:sec.title,題目:q.text,已問:chk?'是':'',客戶回應:note});
+  }));
+  return rows;
+}
+function cardText(){
+  const c=cardData(); let t='【需求卡】\n'+Object.entries(c).map(([k,v])=>`${k}：${v||'—'}`).join('\n');
+  const a=answers().filter(r=>r.客戶回應);
+  if(a.length) t+='\n\n【對焦重點】\n'+a.map(r=>`・${r.題目}\n  → ${r.客戶回應}`).join('\n');
+  return t;
+}
+function copyCard(){
+  if(!checkReq()) return;
+  const t=cardText();
+  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('已複製，貼回給 Claude 即可'),()=>{
+    const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');toast('已複製，貼回給 Claude 即可');}catch(e){toast('複製失敗，請改用匯出 Excel');}
+    ta.remove();});
+}
+function exportXlsx(){
+  if(!checkReq()) return;
+  if(typeof XLSX==='undefined'){ toast('Excel 元件載入失敗，請改用「複製需求卡」'); return; }
+  const c=cardData(), all=answers();
+  const wb=XLSX.utils.book_new();
+  const s1=XLSX.utils.aoa_to_sheet([['欄位','內容'],...Object.entries(c)]); s1['!cols']=[{wch:14},{wch:60}];
+  const s2=XLSX.utils.json_to_sheet(all); s2['!cols']=[{wch:14},{wch:50},{wch:6},{wch:50}];
+  const s3=XLSX.utils.json_to_sheet(all.filter(r=>r.客戶回應).map(r=>({類別:r.類別,題目:r.題目,客戶回應:r.客戶回應})));
+  s3['!cols']=[{wch:14},{wch:50},{wch:50}];
+  XLSX.utils.book_append_sheet(wb,s1,'需求卡');
+  XLSX.utils.book_append_sheet(wb,s2,'完整問題記錄');
+  XLSX.utils.book_append_sheet(wb,s3,'客戶回應摘要');
+  const d=(c['對焦日期']||new Date().toISOString().slice(0,10)).replace(/-/g,'');
+  XLSX.writeFile(wb,`callfocus-${d}.xlsx`);
+  toast('已匯出，把檔案丟回給 Claude 即可');
+}
+let tt; function toast(m){const el=document.getElementById('toast');el.textContent=m;el.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('show'),3200);}
+reqEls().forEach(el=>{el.addEventListener('input',updateReq);el.addEventListener('change',updateReq);});
+document.getElementById('callDate').value=new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
+updateReq();
 </script>
 </body>
 </html>
